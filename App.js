@@ -1,15 +1,24 @@
-import { StatusBar } from "expo-status-bar";
+// import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Alert } from "react-native";
 
 import Loading from "./Loading";
 import * as Location from "expo-location";
 
 export default class extends React.Component {
+  state = { isLoading: true };
   getLocation = async () => {
-    const location = await Location.getCurrentPositionAsync();
+    let { status } = await Location.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Can't find you", "So sad");
+    } else {
+      const {
+        coords: { latitude, longitude },
+      } = await Location.getCurrentPositionAsync();
 
-    console.log(location);
+      this.setState({ isLoading: false });
+      console.log(latitude, longitude);
+    }
   };
 
   componentDidMount() {
@@ -17,6 +26,7 @@ export default class extends React.Component {
   }
 
   render() {
-    return <Loading />;
+    const { isLoading } = this.state;
+    return isLoading ? <Loading /> : null;
   }
 }
